@@ -1,0 +1,15 @@
+version: "3.2"
+services:
+  formular-agent-sender:
+    image: smallseal/formular.jenkins.agent:feat-mq-pusher
+    container_name: formular-agent-sender
+    volumes:
+      - ./formular-agent/config.py:/app/config.py
+    networks:
+      - formular-agent-sender
+    command: ["-t", "sender"]
+    restart: always
+
+networks:
+  formular-agent-sender:
+    driver: bridge
