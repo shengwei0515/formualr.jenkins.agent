@@ -1,0 +1,37 @@
+version: "3.2"
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.3-management
+    container_name: jenkins-agent-mq
+    hostname: jenkins-agent-mq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    networks:
+      - formular-agent-receiver
+    volumes:
+      - ../data/rabbitmq/etc/:/etc/rabbitmq/mnesia/
+      - ../data/rabbitmq/data/:/var/lib/rabbitmq/
+      - ../logs/rabbitmq/:/var/log/rabbitmq/
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    environment:
+      - RABBITMQ_LOGS=/var/log/rabbitmq/rabbit.log
+      - TZ=Asia/Taipei
+    restart: always
+  formular-agent-receiver:
+    image: smallseal/formular.jenkins.agent:main
+    container_name: formular-agent-receiver
+    ports:
+      - 4000:4000
+    environment:
+      - name=value
+    volumes:
+      - ./formular-agent/config.py:/app/config.py
+    networks:
+      - formular-agent-receiver
+    command: ["-t", "receiver"]
+    restart: always
+
+networks:
+  formular-agent-receiver:
+    driver: bridge
